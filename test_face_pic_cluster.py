@@ -41,4 +41,47 @@ def t2():
     print (c0.distance(c2))
 
 
-t2()
+
+def test_merge():
+    point1 = []
+
+    root1 = (1, 1)
+    root = root1
+    for i in range(root[0], 3 + root[0]):
+        for j in range(root[1], 3 + root[1]):
+            point1.append((i, j))
+
+    point2 = []
+    root2 = (6, 1)
+    root = root2
+
+    for i in range(root[0], 3 + root[0]):
+        for j in range(root[1], 3 + root[1]):
+            point2.append((i, j))
+
+    point3 = []
+    root3 = (4, 5)
+    root = root3
+
+    for i in range(root[0], 3 + root[0]):
+        for j in range(root[1], 3 + root[1]):
+            point3.append((i, j))
+
+    point = []
+    point = point1 + point2 + point3
+
+    faces = []
+    clusters = []
+    for idx, p in enumerate(point):
+        f = FacePic(np.array(list(p)), str(idx), "Meow")
+        c = FaceCluster(set([f]))
+        faces.append(f)
+        clusters.append(c)
+
+    clusterspace = Clusterspace(clusters)
+    clusterspace.merge_closest(4)
+    working_cluster = clusterspace.getWorkingCluster()
+    assert len(working_cluster) == 3
+    print len(working_cluster)
+
+test_merge()

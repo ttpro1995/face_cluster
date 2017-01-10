@@ -22,14 +22,14 @@ class FaceCluster:
         self.facepics = facepics
         self.facepicsrep = None
         self.frame_ids = set()
-        self.n_frame_ids = defaultdict()
+        self.freq_frame_ids = defaultdict() # freq each frame id appear
         self.working = True
         for facepic in facepics:
             self.frame_ids.add(facepic.frame_id)
-            if (facepic.frame_id not in self.n_frame_ids.keys()):
-                self.n_frame_ids[facepic.frame_id] = 1
+            if (facepic.frame_id not in self.freq_frame_ids.keys()):
+                self.freq_frame_ids[facepic.frame_id] = 1
             else:
-                self.n_frame_ids[facepic.frame_id] +=1
+                self.freq_frame_ids[facepic.frame_id] +=1
 
             if (type(self.facepicsrep).__module__ != np.__name__):
                 self.facepicsrep = np.array([facepic.rep])
@@ -63,10 +63,14 @@ class FaceCluster:
         :return:
          True or False
         """
-        collision = self.frame_ids & acluster.frame_ids
-        ncollision = len(collision)
-        a = float(ncollision) / len(self.facepics)
-        b = float(ncollision) / len(acluster.facepics)
+        collisions_frames = [k for k in self.freq_frame_ids.keys() if k in acluster.freq_frame_ids.keys()]
+        self.ncollision = 0
+        ancollision = 0
+        for collision_id in collisions_frames:
+            self.ncollision += self.freq_frame_ids[collision_id]
+            ancollision +=acluster.freq_frame_ids[collision_id]
+        a = float(self.ncollision) / len(self.facepics)
+        b = float(ancollision) / len(acluster.facepics)
         c = max(a,b)
         if c < MERGE_THRESHOLD:
             return True
