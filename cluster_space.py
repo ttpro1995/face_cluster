@@ -66,15 +66,19 @@ class Clusterspace:
         """
         self.calculate_distance()
         min_dist = min(self.distances.values())
+        keys = _find_key(self.distances,min_dist)
 
         while(min_dist < threshold):
-             for keys, dist in self.distances.iteritems() :
-                if dist == min_dist:
-                    idx_a = keys[0]
-                    idx_b = keys[1]
-                    print ('merge ',idx_a, idx_b)
-                    new_cluster = self.clusters_space[idx_a].merge(self.clusters_space[idx_b])
-                    self.add_clusters([new_cluster])
+            idx_a = keys[0]
+            idx_b = keys[1]
+            print ('merge ',idx_a, idx_b)
+            new_cluster = self.clusters_space[idx_a].merge(self.clusters_space[idx_b])
+            self.add_clusters([new_cluster])
+
+            ## redo the calculation
+            self.calculate_distance()
+            min_dist = min(self.distances.values())
+            keys = _find_key(self.distances, min_dist)
 
     def getWorkingCluster(self):
         """
