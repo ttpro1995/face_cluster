@@ -26,12 +26,17 @@ class Clusterspace:
 
     def add_clusters(self, clusters):
         """
-
+        will ignore empty cluster
         :param clusters: a list of clusters
         :return:
         """
+        for cl in clusters:
+            if len(cl) == 0:
+                clusters.remove(cl) # do not add empty cluster
+
         self.clusters_space +=clusters
         self.calculate_distance()
+
 
     def calculate_distance(self, force_recalculate = False):
         """
@@ -72,8 +77,8 @@ class Clusterspace:
             idx_a = keys[0]
             idx_b = keys[1]
             print ('merge ',idx_a, idx_b)
-            new_cluster = self.clusters_space[idx_a].merge(self.clusters_space[idx_b])
-            self.add_clusters([new_cluster])
+            new_cluster, child_cluster = self.clusters_space[idx_a].merge(self.clusters_space[idx_b], True)
+            self.add_clusters([new_cluster, child_cluster])
 
             ## redo the calculation
             self.calculate_distance()

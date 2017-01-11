@@ -27,7 +27,7 @@ class TestClusterSpace():
         d21 = c2.distance(c1)
         d42 = c2.distance(c4)
         print (d12, d21, d42)
-        c3 = c1.merge(c2)
+        c3 = c1.merge(c2, False)
 
     def testClusterSpace(self):
         meow1 = FacePic(np.array([1, 1]), 'f1', None)
@@ -109,6 +109,23 @@ class TestClusterSpace():
         assert c4.is_mergeable(c6) == False
         assert c7.is_mergeable(c1) == False
         assert c7.is_mergeable(c5) == True
+
+    def test_split(self):
+        meow1 = FacePic(np.array([1, 1]), 'f1', None)
+        meow2 = FacePic(np.array([3, 3]), 'f2', None)
+        meow3 = FacePic(np.array([4, 4]), 'f3', None)
+        meow4 = FacePic(np.array([8, 8]), 'f1', None)
+        c0 = FaceCluster(set([meow1,meow2,meow3,meow4]))
+        child = c0.split(['f2','f3'])
+        assert meow1 in c0.facepics
+        assert not meow2 in c0.facepics
+        assert not meow3 in c0.facepics
+        assert meow4 in c0.facepics
+        assert not (meow1 in child.facepics)
+        assert meow2 in child.facepics
+        assert meow3 in child.facepics
+        assert not (meow4 in child.facepics)
+
 
     def test_clusterspace(self):
         meow1 = FacePic(np.array([1, 1]), 'f1', None)

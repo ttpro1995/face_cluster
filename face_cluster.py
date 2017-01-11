@@ -36,25 +36,59 @@ class FaceCluster:
             else:
                 self.facepicsrep = np.vstack([self.facepicsrep, facepic.rep])
 
-    def merge(self, acluster):
+    def merge(self, acluster, split_child):
         """
         merge 2 cluster, set 2 parent cluster working status to false
         :param acluster: another cluster
+        :param split_child: True or False
         :return:
         a cluster
         """
+
+        if (split_child):
+            intersec_frame = self.frame_ids & acluster.frame_ids
+            child_cluster = self.split(intersec_frame)
+
+
         facepics = self.facepics | acluster.facepics
         self.working = False
         acluster.working = False
         new_cluster = FaceCluster(facepics)
-        return new_cluster
+
+        if split_child:
+            return new_cluster, child_cluster
+        else:
+            return new_cluster
+
+    def split(self, frame_ids):
+        """
+        split into child cluster contain all face belong to frame_id
+        :param frame_id: the list of frame_id
+        :return: a set of facepics which was remove from cluster
+        """
+        splitface = []
+
+        for idx, face in enumerate(self.facepics):
+            if (face.frame_id in frame_ids):
+                splitface.append(face)
+
+        for face in splitface:
+            self.facepics.remove(face)
+
+        child_cluster = FaceCluster(splitface)
+        self.__init__(self.facepics) # reinit the facepics
+        return child_cluster
+
+
+
+
 
     def __len__(self):
         """
         :return: Number of vector in cluster
         """
-        tmp = self.facepicsrep.shape[0]
-        return int(tmp)
+
+        return int(len(self.facepics))
 
     def is_mergeable(self, acluster):
         """
