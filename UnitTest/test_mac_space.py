@@ -210,3 +210,26 @@ class TestClusterSpace():
         clusterspace.merge_closest(4)
         working_cluster = clusterspace.getWorkingCluster()
         assert len(working_cluster) == 3
+
+    def test_split_merge(self):
+        meow1 = FacePic(np.array([1, 1]), 'f1', None)
+        meow9 = FacePic(np.array([21, 25]), 'f1', None)
+        meow5 = FacePic(np.array([12, 12]), 'f2', None)
+        meow6 = FacePic(np.array([10, 10]), 'f2', None)
+        meow7 = FacePic(np.array([15, 15]), 'f2', None)
+        meow8 = FacePic(np.array([22, 23]), 'f2', None)
+        meow13 = FacePic(np.array([22, 33]), 'f2', None)
+        meowf3_1 = FacePic(np.array([100, 101]), 'f3', None)
+        meowf3_2 = FacePic(np.array([101, 101]), 'f3', None)
+        meowf3_3 = FacePic(np.array([102, 101]), 'f3', None)
+        meowf3_4 = FacePic(np.array([103, 101]), 'f3', None)
+        meowf3_5 = FacePic(np.array([104, 101]), 'f3', None)
+        meowf3_6 = FacePic(np.array([105, 101]), 'f3', None)
+
+        c5 = FaceCluster(set([meow5, meow6, meow7, meow8, meow9, meow13]))  # f1 =1 ,f2 = 5
+        c7 = FaceCluster(set([meowf3_1, meowf3_2, meowf3_3, meowf3_4, meowf3_5, meowf3_6, meow1]))  # f1 = 1, f3 = 6
+        ret, child, a_child = c5.merge(c7, split_child=True)
+        assert meow1 in a_child.facepics
+        assert meow9 in child.facepics
+        assert not meow1 in ret.facepics
+        assert not meow9 in ret.facepics

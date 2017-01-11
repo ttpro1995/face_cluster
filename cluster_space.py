@@ -31,10 +31,9 @@ class Clusterspace:
         :return:
         """
         for cl in clusters:
-            if len(cl) == 0:
-                clusters.remove(cl) # do not add empty cluster
+            if len(cl) != 0:
+                self.clusters_space += clusters
 
-        self.clusters_space +=clusters
         self.calculate_distance()
 
 
@@ -77,8 +76,8 @@ class Clusterspace:
             idx_a = keys[0]
             idx_b = keys[1]
             print ('merge ',idx_a, idx_b)
-            new_cluster, child_cluster = self.clusters_space[idx_a].merge(self.clusters_space[idx_b], True)
-            self.add_clusters([new_cluster, child_cluster])
+            new_cluster, child_cluster, a_child_cluster = self.clusters_space[idx_a].merge(self.clusters_space[idx_b], True)
+            self.add_clusters([new_cluster, child_cluster, a_child_cluster])
 
             ## redo the calculation
             self.calculate_distance()

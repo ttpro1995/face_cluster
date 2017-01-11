@@ -40,15 +40,17 @@ class FaceCluster:
         """
         merge 2 cluster, set 2 parent cluster working status to false
         :param acluster: another cluster
-        :param split_child: True or False
+        :param split_child: True or False (True will split 2 intersection cluster before merge
         :return:
         a cluster
+        an intersection from self cluster
+        an intersection from acluster
         """
 
         if (split_child):
             intersec_frame = self.frame_ids & acluster.frame_ids
             child_cluster = self.split(intersec_frame)
-
+            a_child_cluster = acluster.split(intersec_frame)
 
         facepics = self.facepics | acluster.facepics
         self.working = False
@@ -56,15 +58,16 @@ class FaceCluster:
         new_cluster = FaceCluster(facepics)
 
         if split_child:
-            return new_cluster, child_cluster
+            return new_cluster, child_cluster, a_child_cluster
         else:
             return new_cluster
 
     def split(self, frame_ids):
         """
         split into child cluster contain all face belong to frame_id
+        the face which is split into smaller cluster will be remove from self cluster
         :param frame_id: the list of frame_id
-        :return: a set of facepics which was remove from cluster
+        :return: child cluster contain frame id in frame_ids
         """
         splitface = []
 
@@ -97,9 +100,20 @@ class FaceCluster:
         :return:
          True or False
         """
-        collisions_frames = [k for k in self.freq_frame_ids.keys() if k in acluster.freq_frame_ids.keys()]
+        #collisions_frames = [k for k in self.freq_frame_ids.keys() if k in acluster.freq_frame_ids.keys()]
+        collisions_frames = self.frame_ids & acluster.frame_ids
+        if len(self.facepics)==0:
+            self.working = False # empty cluster not working
+        if len(acluster.facepics) == 0:
+            acluster.working = False
+
+        if (self.working == False) or (acluster.working == False):
+            return False # not mergable
+
         self.ncollision = 0
         ancollision = 0
+        if len(acluster.facepics) == 0:
+            print 'break'
         for collision_id in collisions_frames:
             self.ncollision += self.freq_frame_ids[collision_id]
             ancollision +=acluster.freq_frame_ids[collision_id]
