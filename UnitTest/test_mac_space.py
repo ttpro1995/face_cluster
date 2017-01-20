@@ -234,3 +234,53 @@ class TestClusterSpace():
         assert meow9 in child.facepics
         assert not meow1 in ret.facepics
         assert not meow9 in ret.facepics
+
+    def test_find_host_cluster(self):
+        point1 = []
+
+        root1 = (1, 1)
+        root = root1
+        for i in range(root[0], 3 + root[0]):
+            for j in range(root[1], 3 + root[1]):
+                point1.append((i, j))
+
+        point2 = []
+        root2 = (6, 2)
+        root = root2
+
+        for i in range(root[0], 3 + root[0]):
+            for j in range(root[1], 3 + root[1]):
+                point2.append((i, j))
+
+        point3 = []
+        root3 = (12, 12)
+        root = root3
+
+        for i in range(root[0], 3 + root[0]):
+            for j in range(root[1], 3 + root[1]):
+                point3.append((i, j))
+
+        point4 = []
+        root4 = (1,12)
+        root = root4
+        for i in range(root[0], 4 + root[0]):
+            for j in range(root[1], 4 + root[1]):
+                point4.append((i, j))
+
+        point = point1 + point2 + point3 + point4
+
+        faces = []
+        clusters = []
+        for idx, p in enumerate(point):
+            f = FacePic(np.array(list(p)), str(idx), "Meow")
+            c = FaceCluster(set([f]))
+            faces.append(f)
+            clusters.append(c)
+
+        clusterspace = Clusterspace(None, clusters, '111')
+        clusterspace.merge_closest(6)
+        working_cluster = clusterspace.getWorkingCluster()
+        print len(working_cluster[0])
+        assert len(working_cluster[0]) == 4
+        host = clusterspace.find_host_cluster()
+        assert len(host) == 16

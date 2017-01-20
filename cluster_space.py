@@ -34,6 +34,11 @@ def _find_key(my_dict, value):
     return key
 
 class Clusterspace:
+    """
+    self.host: biggest cluster
+    self.distances: distance matrix of cluster
+    self.data_dir: string
+    """
     def __init__(self, data_dir, clusters = None, mac = None):
         self.mac = mac
         self.data_dir = data_dir
@@ -102,7 +107,14 @@ class Clusterspace:
         self.save_model()
 
     def find_host_cluster(self):
-        pass
+        """
+        Find biggest cluster
+        update self.host
+        :return:
+        """
+        biggest_cluster = max(self.clusters_space, key=len)
+        self.host = biggest_cluster
+        return self.host
 
     # def train(self):
     #     print "#fram = " + str(len(self.update_fram()))
@@ -214,7 +226,7 @@ class Clusterspace:
     def getWorkingCluster(self):
         """
 
-        :return: a list of working cluster
+        :return: a list of working cluster and its index
         """
         working_cluster = []
         idx = []
