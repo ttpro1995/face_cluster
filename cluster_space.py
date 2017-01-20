@@ -10,7 +10,7 @@ import pickle
 from Encoder import encoder
 from munkres import Munkres
 
-E = encoder()
+# E = encoder()
 RECOGNISE_THRESHOLD = 0.9
 MERGE_DISTANCE_THRESHOLD = 2.0
 INCREMENTAL_TRAIN_THRESHOLD = 20
@@ -57,16 +57,7 @@ class Clusterspace:
 
         self.calculate_distance()
 
-    def read_fram(self,f_path):
-        framID = f_path.split("/")[-1]
-        clusters = []
-        for cluster in listdir(f_path):
-            face_cluster = set()
-            for pic in listdir(f_path + "/" + cluster):
-                path = f_path + "/" + cluster + "/" + pic
-                face_cluster.add(FacePic(E.get_rep_preprocessed(path),framID,path))
-            clusters.append(FaceCluster(face_cluster))
-        return clusters
+
 
     def update_fram(self):
         cur_frams = set()
@@ -152,62 +143,6 @@ class Clusterspace:
     #     else:
     #         return
 
-    def match(self, f_path):
-        if len(self.update_fram()) <= TRAIN_THRESHOLD:
-            return None
-        f_path = self.data_dir + "/" + f_path.split("/")[-1]
-        clusters = self.read_fram(f_path)
-        if len(clusters) == 0:
-            return None
-        _, working_cluster_idx = self.getWorkingCluster()
-        dist = np.zeros((len(clusters), len(working_cluster_idx)))
-
-        working_cluster_idx2idx = defaultdict()
-        idx2working_cluster_idx = defaultdict(lambda: -1)
-
-        count = 0
-        for cluster_idx in working_cluster_idx:
-            working_cluster_idx2idx[cluster_idx] = count
-            idx2working_cluster_idx[count] = cluster_idx
-            count += 1
-
-        for acluster in working_cluster_idx:
-            for cluster in range(len(clusters)):
-                dist[cluster][working_cluster_idx2idx[acluster]] \
-                    = (self.clusters_space[acluster]).distance(clusters[cluster])
-
-        for i in range(dist.shape[0]):
-            if np.all(dist[i] > RECOGNISE_THRESHOLD):
-                for j in range(dist.shape[1]):
-                    dist[i][j] = 987654321
-
-        # for i in range(len(clusters)):
-        #     a = clusters[i]
-        #     a.show_faces()
-
-        m = Munkres()
-        dist = pad_to_square(dist, pad_value=0)
-        tmp = dist.tolist()
-        indexes = m.compute(tmp)
-
-        ret = defaultdict()
-        print "-------------------------------MATCH-----------------------------------------"
-        for row, column in indexes:
-            if tmp[row][column] == 987654321:
-                idx2working_cluster_idx[row] = -1
-            if tmp[row][column] != 0:
-                ret[row] = self.clusters_space[idx2working_cluster_idx[column]].name
-                print "\t" + str(row) + " : " + \
-                      self.clusters_space[idx2working_cluster_idx[column]].name \
-                      + " (dist: " + str(tmp[row][column]) + ")"
-
-        # for i in ret.keys():
-        #     acluster = clusters[i]
-        #     cluster = self.clusters_space[ret[i]]
-        #     acluster.show_faces()
-        #     cluster.show_faces()
-
-        return ret
 
     def is_matchable(self):
         pass
