@@ -38,7 +38,7 @@ class TestClusterSpace():
         c0 = FaceCluster(set([meow1, meow2]))
         c1 = FaceCluster(set([meow3]))
         c2 = FaceCluster(set([meow4, meow5]))
-        space = Clusterspace([c0, c1, c2])
+        space = Clusterspace(None,[c0, c1, c2],mac = '111')
         print (space.distances)
         print (space.clusters_space)
         print (c0.distance(c1))
@@ -61,7 +61,7 @@ class TestClusterSpace():
         c1 = FaceCluster(set([meow3]))
         c2 = FaceCluster(set([meow4, meow5]))
         c3 = FaceCluster(set([meow6,meow7,meow8]))
-        space = Clusterspace([c0, c1, c2])
+        space = Clusterspace(None,[c0, c1, c2], '111')
         print (space.distances)
         print (space.clusters_space)
         print (c0.distance(c1))
@@ -157,7 +157,7 @@ class TestClusterSpace():
         c6 = FaceCluster(set([meow5,meow6,meow7,meow8, meow9, meow10, meow11,meow12])) # f2 = 4, f1 = 4
         c7 = FaceCluster(set([meowf3_1, meowf3_2, meowf3_3, meowf3_4, meowf3_5, meowf3_6, meow1])) # f1 = 1, f3 = 6
         clusters = [c0,c1,c2,c3,c4,c5,c6,c7]
-        clusterspace = Clusterspace(clusters)
+        clusterspace = Clusterspace(None ,clusters= clusters, mac='111')
         clusterspace.calculate_distance()
 
         for idx_a, c_a in enumerate(clusters):
@@ -180,7 +180,7 @@ class TestClusterSpace():
                 point1.append((i,j))
 
         point2 = []
-        root2 = (6,1)
+        root2 = (6,2)
         root = root2
 
         for i in range(root[0], 3 + root[0]):
@@ -188,14 +188,14 @@ class TestClusterSpace():
                 point2.append((i, j))
 
         point3 = []
-        root3 = (4, 5)
-        root = root2
+        root3 = (12, 12)
+        root = root3
 
         for i in range(root[0], 3 + root[0]):
             for j in range(root[1], 3 + root[1]):
                 point3.append((i, j))
 
-        point = []
+
         point = point1 + point2 + point3
 
         faces = []
@@ -206,10 +206,11 @@ class TestClusterSpace():
             faces.append(f)
             clusters.append(c)
 
-        clusterspace = Clusterspace(clusters)
+        clusterspace = Clusterspace(None, clusters, '111')
         clusterspace.merge_closest(4)
         working_cluster = clusterspace.getWorkingCluster()
-        assert len(working_cluster) == 3
+        print len(working_cluster)
+        assert len(working_cluster[0]) == 3
 
     def test_split_merge(self):
         meow1 = FacePic(np.array([1, 1]), 'f1', None)
