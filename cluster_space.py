@@ -37,11 +37,16 @@ class Clusterspace:
     """
     self.host: biggest cluster
     self.distances: distance matrix of cluster
-    self.data_dir: string
+    self.frams_dir: string
     """
-    def __init__(self, data_dir, clusters = None, mac = None):
+    def __init__(self, frams_dir, clusters = None, mac = None):
+        """
+        :param frams_dir: directory
+        :param clusters: list
+        :param mac: string
+        """
         self.mac = mac
-        self.data_dir = data_dir
+        self.frams_dir = frams_dir
         self.clusters_space = []
         self.distances = defaultdict()
         self.frams = set()
@@ -66,7 +71,7 @@ class Clusterspace:
 
     def update_fram(self):
         cur_frams = set()
-        for frame in self.data_dir:
+        for frame in self.frams_dir:
             cur_frams.add(frame)
         return cur_frams
 
@@ -78,7 +83,7 @@ class Clusterspace:
     def save_model(self):
         d = defaultdict()
         d["clusters_space"] = self.clusters_space
-        d["data_dir"] = self.data_dir
+        d["frams_dir"] = self.frams_dir
         d["distances"] = self.distances
         d["frams"] = self.frams
         pickle.dump(d, open("trained_space.p", "wb"), protocol=2)
@@ -86,7 +91,7 @@ class Clusterspace:
     def load_model(self):
         space = pickle.load(open("trained_space.p", "rb"))
         self.clusters_space = space["clusters_space"]
-        self.data_dir = space["data_dir"]
+        self.frams_dir = space["frams_dir"]
         self.distances = space["distances"]
         self.frams = space["frams"]
 
@@ -97,7 +102,7 @@ class Clusterspace:
         if len(newframs) == 0:
             return
         for fram in newframs:
-            f_path = self.data_dir + "/" + fram
+            f_path = self.frams_dir + "/" + fram
             clusters = self.read_fram(f_path)
             new_clusters.extend(clusters)
             self.frams.add(fram)
@@ -112,52 +117,13 @@ class Clusterspace:
         update self.host
         :return:
         """
+        if len(self.clusters_space)==0: # when there is no cluster
+            self.host = None
+            return self.host
         biggest_cluster = max(self.clusters_space, key=len)
         self.host = biggest_cluster
         return self.host
 
-    # def train(self):
-    #     print "#fram = " + str(len(self.update_fram()))
-    #     if isfile("trained_space.p") and len(self.clusters_space) == 0:
-    #         self.load_model()
-    #
-    #     newframs = self.update_fram() - self.frams
-    #     if len(newframs) > 0 and len(self.update_fram())%TRAIN_THRESHOLD == 0:
-    #         print "-----------------------------TRAINING----------------------------------"
-    #         self.renew()
-    #
-    #         data = defaultdict(lambda :defaultdict(list))
-    #         path2rep = defaultdict(lambda :0)
-    #         for frame in listdir(self.data_dir):
-    #             for cluster in listdir(self.data_dir + "/" + frame):
-    #                 for pic in listdir(self.data_dir + "/" + frame + "/" + cluster):
-    #                     path = self.data_dir + "/" + frame + "/" + cluster + "/" + pic
-    #                     data[frame][cluster].append(path)
-    #                     path2rep[path] = E.get_rep_preprocessed(path)
-    #
-    #         clusters = []
-    #         for frame in data.keys():
-    #             for cluster in data[frame].keys():
-    #                 FacePics = set()
-    #                 for path in data[frame][cluster]:
-    #                     FacePics.add(FacePic(path2rep[path], frame, path))
-    #                 clusters.append(FaceCluster(FacePics))
-    #             self.frams.add(frame)
-    #         self.add_clusters(clusters)
-    #         self.merge_closest(MERGE_DISTANCE_THRESHOLD)
-    #         self.name()
-    #         self.save_model()
-    #
-    #     elif len(self.update_fram()) > TRAIN_THRESHOLD \
-    #             and len(newframs)%INCREMENTAL_TRAIN_THRESHOLD == 0  \
-    #             and len(newframs)%TRAIN_THRESHOLD != 0:
-    #             self.incremental_train()
-    #     else:
-    #         return
-
-
-    def is_matchable(self):
-        pass
 
     def show__working_cluster(self):
         _, idx = self.getWorkingCluster()
@@ -238,6 +204,14 @@ class Clusterspace:
             count += 1
 
         return working_cluster, idx
+
+    def is_matchable(self):
+        """
+        host not None
+        frams > threshold
+        :return:
+        """
+        pass
 
     def name(self):
         print "------------------------------------NAMING-------------------------------------"
